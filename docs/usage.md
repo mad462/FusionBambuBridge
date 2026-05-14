@@ -1,0 +1,34 @@
+# Usage
+
+## What The Scaffold Does Today
+
+The command registers in Fusion and attempts this flow:
+
+1. Read the current selection.
+2. Validate that the selected entities are bodies, components, or occurrences.
+3. Normalize and deduplicate the selection.
+4. Build a temporary export target when multiple objects are selected.
+5. Export a temporary `3MF`.
+6. Launch Bambu Studio with that file path.
+
+## What It Does Not Do Yet
+
+- Offer a Fusion dialog for choosing export mode or executable path.
+- Extend the built-in Fusion `3D Print` dialog directly.
+
+## Quick Start
+
+1. Copy or sync the `FusionBambuBridge` folder into your Fusion add-ins directory.
+2. Start the add-in from `Utilities -> Add-Ins -> Scripts and Add-Ins`.
+3. In the Design workspace, look for `Bambu Bridge` in the toolbar.
+4. Select one or more supported objects and click the command.
+
+## Temporary Files
+
+The current scaffold writes to:
+
+```text
+%TEMP%\FusionBambuBridge
+```
+
+Keeping that path simple makes debugging easier. Export staging inside Fusion is cleaned up automatically after export.

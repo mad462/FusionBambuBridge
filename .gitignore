@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.vscode/
+debug.log
+*.3mf
+docs/superpowers/
+tmp/
+temp/
+dist/
+build/

@@ -1,0 +1,13 @@
+{
+  "autodeskProduct": "Fusion",
+  "type": "addin",
+  "id": "com.chizhi.fusionbambubridge",
+  "author": "Chizhi + Codex",
+  "description": {
+    "": "Batch-export selected Fusion geometry to a temporary 3MF and open it in Bambu Studio."
+  },
+  "version": "0.1.0",
+  "runOnStartup": false,
+  "supportedOS": "windows",
+  "editEnabled": true
+}
