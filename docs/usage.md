@@ -18,10 +18,13 @@ The command registers in Fusion and attempts this flow:
 
 ## Quick Start
 
-1. Copy or sync the `FusionBambuBridge` folder into your Fusion add-ins directory.
-2. Start the add-in from `Utilities -> Add-Ins -> Scripts and Add-Ins`.
-3. In the Design workspace, look for `Bambu Bridge` in the toolbar.
-4. Select one or more supported objects and click the command.
+1. In Fusion, press `Shift+S` to open `Scripts and Add-Ins`.
+2. Switch to the `Add-Ins` tab.
+3. Click `+` and choose `Script or Add-In from Device`.
+4. Select the `FusionBambuBridge` folder.
+5. Run the add-in.
+6. In the Design workspace, look for `Bambu Bridge` in the toolbar.
+7. Select one or more supported objects and click the command.
 
 ## Temporary Files
 

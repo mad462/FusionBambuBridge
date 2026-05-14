@@ -1,5 +1,7 @@
 # FusionBambuBridge
 
+[English](./README.md) | [简体中文](./README.zh-CN.md)
+
 FusionBambuBridge is a Windows-focused Fusion 360 add-in scaffold for one specific workflow:
 
 1. Select one or more bodies or components in Fusion.
@@ -34,23 +36,17 @@ FusionBambuBridge/
 
 ## Install In Fusion
 
-Fusion add-ins on Windows live under:
+Recommended installation flow:
 
-```text
-%APPDATA%\Autodesk\Autodesk Fusion\API\AddIns
-```
-
-Two options:
-
-- Copy the `FusionBambuBridge` folder into your Fusion add-ins directory.
-- Use [`scripts/copy-to-fusion.ps1`](./scripts/copy-to-fusion.ps1) to refresh the installed copy during development.
-
-After the files are in place:
-
-1. Open `Utilities -> Add-Ins -> Scripts and Add-Ins` in Fusion.
+1. In Fusion, open the `Scripts and Add-Ins` window with `Shift+S`.
 2. Switch to the `Add-Ins` tab.
-3. Add the folder if needed, then run `FusionBambuBridge`.
-4. Use the `Bambu Bridge` button from the Design workspace toolbar.
+3. Click the `+` button.
+4. Choose `Script or Add-In from Device`.
+5. Select the `FusionBambuBridge` folder on your machine.
+6. Run `FusionBambuBridge`.
+7. Use the `Bambu Bridge` button from the Design workspace toolbar.
+
+For development, you can still use [`scripts/copy-to-fusion.ps1`](./scripts/copy-to-fusion.ps1) if you prefer a manual sync workflow.
 
 ## Development Notes
 
