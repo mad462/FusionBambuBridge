@@ -125,14 +125,9 @@ def _build_selection_summary(inputs) -> None:
 
     selection_input = adsk.core.SelectionCommandInput.cast(inputs.itemById(config.SELECTION_INPUT_ID))
     summary_input = adsk.core.TextBoxCommandInput.cast(inputs.itemById(config.SELECTION_SUMMARY_INPUT_ID))
-    format_input = adsk.core.DropDownCommandInput.cast(inputs.itemById(config.FORMAT_INPUT_ID))
 
-    if not selection_input or not summary_input or not format_input:
+    if not selection_input or not summary_input:
         return
-
-    selected_name = "3MF"
-    if format_input.selectedItem:
-        selected_name = format_input.selectedItem.name
 
     try:
         normalized_count = len(
@@ -143,7 +138,6 @@ def _build_selection_summary(inputs) -> None:
 
     summary_input.formattedText = command_ui_state.build_command_summary_html(
         selection_count=normalized_count,
-        format_name=selected_name,
     )
 
 
@@ -260,24 +254,9 @@ if adsk is not None:
             event_args = adsk.core.CommandCreatedEventArgs.cast(args)
             command = event_args.command
             inputs = command.commandInputs
-            settings = settings_service.load_settings()
 
             command.okButtonText = "\u53d1\u9001\u5230 Bambu"
-            command.setDialogInitialSize(360, 420)
-
-            prep_input = inputs.addDropDownCommandInput(
-                config.PREP_TYPE_INPUT_ID,
-                "\u51c6\u5907\u7c7b\u578b",
-                adsk.core.DropDownStyles.TextListDropDownStyle,
-            )
-            prep_input.listItems.add("\u6253\u5370\u5b9e\u7528\u7a0b\u5e8f", True)
-
-            app_input = inputs.addDropDownCommandInput(
-                config.APP_INPUT_ID,
-                "\u5e94\u7528\u7a0b\u5e8f",
-                adsk.core.DropDownStyles.TextListDropDownStyle,
-            )
-            app_input.listItems.add("Bambu Studio", True)
+            command.setDialogInitialSize(360, 210)
 
             selection_input = inputs.addSelectionInput(
                 config.SELECTION_INPUT_ID,
@@ -293,33 +272,14 @@ if adsk is not None:
             except AttributeError:
                 pass
 
-            format_input = inputs.addDropDownCommandInput(
-                config.FORMAT_INPUT_ID,
-                "\u683c\u5f0f",
-                adsk.core.DropDownStyles.TextListDropDownStyle,
-            )
-            format_input.listItems.add("3MF", True)
-
             selection_summary = inputs.addTextBoxCommandInput(
                 config.SELECTION_SUMMARY_INPUT_ID,
                 "\u5f53\u524d\u9009\u62e9",
-                command_ui_state.build_command_summary_html(0, "3MF"),
+                command_ui_state.build_command_summary_html(0),
                 2,
                 True,
             )
             selection_summary.isFullWidth = True
-
-            runtime_details = inputs.addTextBoxCommandInput(
-                config.RUNTIME_DETAILS_INPUT_ID,
-                "\u8f93\u51fa",
-                command_ui_state.build_runtime_details_html(
-                    bambu_path=settings.bambu_studio_path,
-                    temp_dir=settings.temp_dir,
-                ),
-                3,
-                True,
-            )
-            runtime_details.isFullWidth = True
 
             _build_selection_summary(inputs)
 
@@ -410,7 +370,7 @@ if adsk is not None:
                     temp_dir=settings.temp_dir,
                 )
                 _log(f"export complete: {export_path}")
-                bambu_path = bambu_launcher.resolve_executable(settings.bambu_studio_path)
+                bambu_path = _resolve_bambu_with_prompt(ui, settings.bambu_studio_path)
                 _log(f"resolved bambu path: {bambu_path}")
                 bambu_launcher.launch_bambu(bambu_path, export_path)
             except Exception as exc:  # pragma: no cover - depends on Fusion runtime
@@ -438,3 +398,29 @@ else:
 
     class _CommandExecuteHandler:  # pragma: no cover - local editing fallback
         pass
+
+
+def _resolve_bambu_with_prompt(ui, configured_path):
+    try:
+        return bambu_launcher.resolve_executable(configured_path)
+    except FileNotFoundError:
+        _log("bambu executable not found via auto-detect; prompting user")
+
+    if adsk is None:
+        raise FileNotFoundError("Could not locate Bambu Studio.")
+
+    file_dialog = ui.createFileDialog()
+    file_dialog.title = "\u9009\u62e9 Bambu Studio \u53ef\u6267\u884c\u6587\u4ef6"
+    file_dialog.filter = "Executable (*.exe)|*.exe"
+    file_dialog.initialFilename = "bambu-studio.exe"
+
+    if file_dialog.showOpen() != adsk.core.DialogResults.DialogOK:
+        raise FileNotFoundError(
+            "Could not locate Bambu Studio automatically, and no executable was selected."
+        )
+
+    selected_path = file_dialog.filename
+    if not selected_path:
+        raise FileNotFoundError("No Bambu Studio executable was selected.")
+
+    return bambu_launcher.resolve_executable(settings_service.path_from_string(selected_path))

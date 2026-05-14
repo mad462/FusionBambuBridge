@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from html import escape
-from pathlib import Path
 
 
 def choose_toolbar_panel_id(
@@ -27,22 +26,7 @@ def build_selection_label(selection_count: int) -> str:
     return f"{selection_count} \u4e2a\u5bf9\u8c61\u5df2\u9009\u5b9a"
 
 
-def build_runtime_details_html(bambu_path: Path | None, temp_dir: Path) -> str:
-    """Build a small info block for the Fusion command dialog."""
-    executable_text = (
-        "\u81ea\u52a8\u68c0\u6d4b Bambu Studio" if bambu_path is None else str(bambu_path)
-    )
-    return (
-        "<div><b>\u8f93\u51fa\u5e94\u7528\u7a0b\u5e8f</b>: Bambu Studio</div>"
-        f"<div><b>\u53ef\u6267\u884c\u6587\u4ef6</b>: {escape(executable_text)}</div>"
-        f"<div><b>\u4e34\u65f6\u5bfc\u51fa\u76ee\u5f55</b>: {escape(str(temp_dir))}</div>"
-    )
-
-
-def build_command_summary_html(selection_count: int, format_name: str) -> str:
+def build_command_summary_html(selection_count: int) -> str:
     """Build a compact summary section for the command dialog."""
     selection_label = build_selection_label(selection_count)
-    return (
-        f"<div><b>\u5bf9\u8c61</b>: {escape(selection_label)}</div>"
-        f"<div><b>\u683c\u5f0f</b>: {escape(format_name)}</div>"
-    )
+    return f"<div><b>\u5bf9\u8c61</b>: {escape(selection_label)}</div>"

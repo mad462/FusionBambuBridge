@@ -54,13 +54,6 @@ FusionBambuBridge/
 - Bambu Studio 的路径解析被单独放在一个模块里，后续可以很容易替换成注册表检测、设置面板或自定义路径。
 - 多选导出时会在 Fusion 内部创建一个临时组件作为 staging 目标，导出完成后会自动删除。
 
-## 下一步建议
-
-1. 增加一个更完整的 Fusion 命令对话框，用于路径覆盖和导出模式控制。
-2. 增加可编辑的设置存储，例如 Bambu Studio 路径和临时导出目录。
-3. 继续补强 Fusion 里一些特殊选择场景下的边界处理。
-4. 再把命令交互细节打磨得更像 Fusion 原生 3D Print 工作流。
-
 ## 参考
 
 - [docs/architecture.md](./docs/architecture.md)

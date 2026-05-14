@@ -8,12 +8,11 @@ The command registers in Fusion and attempts this flow:
 2. Validate that the selected entities are bodies, components, or occurrences.
 3. Normalize and deduplicate the selection.
 4. Build a temporary export target when multiple objects are selected.
-5. Export a temporary `3MF`.
+5. Export a temporary `3MF` with a fixed format.
 6. Launch Bambu Studio with that file path.
 
 ## What It Does Not Do Yet
 
-- Offer a Fusion dialog for choosing export mode or executable path.
 - Extend the built-in Fusion `3D Print` dialog directly.
 
 ## Quick Start

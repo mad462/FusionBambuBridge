@@ -20,9 +20,16 @@ class BridgeSettings:
 def load_settings() -> BridgeSettings:
     """Load settings from environment defaults for the scaffold version."""
     configured_path = os.environ.get("BAMBU_STUDIO_PATH")
-    bambu_path = Path(configured_path) if configured_path else None
+    bambu_path = path_from_string(configured_path)
     temp_dir = Path(tempfile.gettempdir()) / "FusionBambuBridge"
     return BridgeSettings(
         bambu_studio_path=bambu_path,
         temp_dir=temp_dir,
     )
+
+
+def path_from_string(value: str | None) -> Path | None:
+    """Convert a string path to Path when present."""
+    if not value:
+        return None
+    return Path(value)

@@ -1,5 +1,4 @@
 import unittest
-from pathlib import Path
 
 from lib import command_ui_state
 
@@ -28,18 +27,6 @@ class CommandUiStateTests(unittest.TestCase):
     def test_build_selection_label_for_multiple_selections(self):
         self.assertEqual(command_ui_state.build_selection_label(3), "3 个对象已选定")
 
-    def test_build_runtime_details_mentions_temp_dir(self):
-        details = command_ui_state.build_runtime_details_html(
-            bambu_path=Path(r"C:\Program Files\Bambu Studio\bambu-studio.exe"),
-            temp_dir=Path(r"C:\Temp\FusionBambuBridge"),
-        )
-        self.assertIn("Bambu Studio", details)
-        self.assertIn(r"C:\Temp\FusionBambuBridge", details)
-
-    def test_build_command_summary_html_includes_selection_and_format(self):
-        summary = command_ui_state.build_command_summary_html(
-            selection_count=1,
-            format_name="3MF",
-        )
+    def test_build_command_summary_html_includes_selection(self):
+        summary = command_ui_state.build_command_summary_html(selection_count=1)
         self.assertIn("1 个对象已选定", summary)
-        self.assertIn("3MF", summary)

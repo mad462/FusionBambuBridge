@@ -54,13 +54,6 @@ For development, you can still use [`scripts/copy-to-fusion.ps1`](./scripts/copy
 - Bambu Studio discovery is isolated in one module so you can replace it later with registry lookup, a settings UI, or custom install paths.
 - Multi-selection export uses a temporary Fusion component as a staging target and deletes it after export.
 
-## Next Recommended Milestones
-
-1. Add a small Fusion command dialog for path overrides and export mode.
-2. Add user-editable settings storage for Bambu Studio path and temp export path.
-3. Add more Fusion-side integration checks around unusual selection cases.
-4. Polish the command UX to feel even closer to Fusion's native print workflow.
-
 ## References
 
 - [docs/architecture.md](./docs/architecture.md)

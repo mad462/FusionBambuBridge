@@ -18,11 +18,7 @@ PREFERRED_PANEL_IDS = [
 ]
 
 SELECTION_INPUT_ID = "exportSelection"
-PREP_TYPE_INPUT_ID = "prepType"
-APP_INPUT_ID = "targetApp"
-FORMAT_INPUT_ID = "exportFormat"
 SELECTION_SUMMARY_INPUT_ID = "selectionSummary"
-RUNTIME_DETAILS_INPUT_ID = "runtimeDetails"
 
 PACKAGE_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = PACKAGE_ROOT / "docs"
