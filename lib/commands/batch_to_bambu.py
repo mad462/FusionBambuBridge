@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import traceback
+from pathlib import Path
 
 from lib import command_ui_state, config
 from lib.services import bambu_launcher, export_service, settings_service
@@ -15,10 +16,11 @@ except ImportError:  # pragma: no cover - allows local editing outside Fusion
 
 
 _local_handlers = []
-_debug_log = r"C:\FUCKfusion\FusionBambuBridge\debug.log"
+_debug_log = config.PACKAGE_ROOT / "debug.log"
 
 
 def _log(message):
+    _debug_log.parent.mkdir(parents=True, exist_ok=True)
     with open(_debug_log, "a", encoding="utf-8") as handle:
         handle.write(f"{message}\n")
 

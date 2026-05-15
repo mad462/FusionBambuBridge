@@ -7,14 +7,15 @@ from pathlib import Path
 
 
 _handlers = []
-_debug_log = r"C:\FUCKfusion\FusionBambuBridge\debug.log"
 _addin_dir = Path(__file__).resolve().parent
+_debug_log = _addin_dir / "debug.log"
 
 if str(_addin_dir) not in sys.path:
     sys.path.insert(0, str(_addin_dir))
 
 
 def _log(message):
+    _debug_log.parent.mkdir(parents=True, exist_ok=True)
     with open(_debug_log, "a", encoding="utf-8") as handle:
         handle.write(f"{message}\n")
 
