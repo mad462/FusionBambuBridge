@@ -224,116 +224,97 @@ def _log_selection_snapshot(label, selections) -> None:
     for index, entity in enumerate(normalized_entities):
         _log(f"{label}: normalized[{index}] {_describe_entity(entity)}")
 
-
-def _seed_current_selections(ui, selection_input) -> None:
-    current_entities = export_service.collect_supported_entities_from_selections(ui.activeSelections)
-    for entity in current_entities:
-        try:
-            selection_input.addSelection(entity)
-        except Exception:
-            _log(f"failed to seed selection: {entity}")
-
-
-def _normalize_selection_input(ui, inputs) -> None:
-    selection_input = adsk.core.SelectionCommandInput.cast(inputs.itemById(config.SELECTION_INPUT_ID))
-    if not selection_input:
-        return
-
-    selection_input.clearSelection()
-    _seed_current_selections(ui, selection_input)
-    _log(f"normalized selection count: {selection_input.selectionCount}")
-    _build_selection_summary(inputs)
-
-
 if adsk is not None:
 
     class _CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
         """Create Fusion-native command inputs and event hooks."""
 
         def notify(self, args):
-            event_args = adsk.core.CommandCreatedEventArgs.cast(args)
-            command = event_args.command
-            inputs = command.commandInputs
-
-            command.okButtonText = "\u53d1\u9001\u5230 Bambu"
-            command.setDialogInitialSize(360, 210)
-
-            selection_input = inputs.addSelectionInput(
-                config.SELECTION_INPUT_ID,
-                "\u5bf9\u8c61",
-                "\u9009\u62e9\u4e00\u4e2a body\u3001component \u6216 occurrence\u3002",
-            )
-            selection_input.addSelectionFilter("Bodies")
-            selection_input.addSelectionFilter("Occurrences")
-            selection_input.addSelectionFilter("RootComponents")
-            selection_input.setSelectionLimits(1, 0)
-            try:
-                selection_input.isUseCurrentSelections = False
-            except AttributeError:
-                pass
-
-            selection_summary = inputs.addTextBoxCommandInput(
-                config.SELECTION_SUMMARY_INPUT_ID,
-                "\u5f53\u524d\u9009\u62e9",
-                command_ui_state.build_command_summary_html(0),
-                2,
-                True,
-            )
-            selection_summary.isFullWidth = True
-
-            _build_selection_summary(inputs)
-
-            on_activate = _CommandActivateHandler()
-            on_input_changed = _CommandInputChangedHandler()
-            on_validate = _CommandValidateInputsHandler()
-            on_execute = _CommandExecuteHandler()
-
-            command.activate.add(on_activate)
-            command.inputChanged.add(on_input_changed)
-            command.validateInputs.add(on_validate)
-            command.execute.add(on_execute)
-
-            _local_handlers.extend([on_activate, on_input_changed, on_validate, on_execute])
-
-
-    class _CommandActivateHandler(adsk.core.CommandEventHandler):
-        """Seed and normalize current selections when the command becomes active."""
-
-        def notify(self, args):
-            event_args = adsk.core.CommandEventArgs.cast(args)
             app = adsk.core.Application.get()
-            inputs = event_args.command.commandInputs
-            _normalize_selection_input(app.userInterface, inputs)
+            ui = app.userInterface
+            try:
+                event_args = adsk.core.CommandCreatedEventArgs.cast(args)
+                command = event_args.command
+                inputs = command.commandInputs
 
+                command.okButtonText = "\u53d1\u9001\u5230 Bambu"
+                command.setDialogInitialSize(360, 210)
+
+                selection_input = inputs.addSelectionInput(
+                    config.SELECTION_INPUT_ID,
+                    "\u5bf9\u8c61",
+                    "\u9009\u62e9\u4e00\u4e2a body\u3001component \u6216 occurrence\u3002",
+                )
+                selection_input.addSelectionFilter("Bodies")
+                selection_input.addSelectionFilter("Occurrences")
+                selection_input.addSelectionFilter("RootComponents")
+                selection_input.setSelectionLimits(1, 0)
+
+                selection_summary = inputs.addTextBoxCommandInput(
+                    config.SELECTION_SUMMARY_INPUT_ID,
+                    "\u5f53\u524d\u9009\u62e9",
+                    command_ui_state.build_command_summary_html(0),
+                    2,
+                    True,
+                )
+                selection_summary.isFullWidth = True
+
+                _build_selection_summary(inputs)
+
+                on_input_changed = _CommandInputChangedHandler()
+                on_validate = _CommandValidateInputsHandler()
+                on_execute = _CommandExecuteHandler()
+
+                command.inputChanged.add(on_input_changed)
+                command.validateInputs.add(on_validate)
+                command.execute.add(on_execute)
+
+                _local_handlers.extend([on_input_changed, on_validate, on_execute])
+            except Exception as exc:
+                _log("commandCreated notify failed")
+                _log(traceback.format_exc())
+                ui.messageBox(
+                    f"FusionBambuBridge \u521b\u5efa\u547d\u4ee4\u5931\u8d25:\n{exc}\n\n{traceback.format_exc()}"
+                )
 
     class _CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
-        """Refresh summary text when the selection or format changes."""
+        """Refresh summary text when the selection changes."""
 
         def notify(self, args):
-            event_args = adsk.core.InputChangedEventArgs.cast(args)
-            inputs = event_args.inputs or _get_command_inputs_from_event(event_args)
-            changed_input = event_args.input
-            if changed_input and getattr(changed_input, "id", "") == config.SELECTION_INPUT_ID:
-                selection_input = adsk.core.SelectionCommandInput.cast(changed_input)
-                _log_selection_snapshot("inputChanged.selection", selection_input)
-            _build_selection_summary(inputs)
+            try:
+                event_args = adsk.core.InputChangedEventArgs.cast(args)
+                inputs = event_args.inputs or _get_command_inputs_from_event(event_args)
+                changed_input = event_args.input
+                if changed_input and getattr(changed_input, "id", "") == config.SELECTION_INPUT_ID:
+                    selection_input = adsk.core.SelectionCommandInput.cast(changed_input)
+                    _log_selection_snapshot("inputChanged.selection", selection_input)
+                _build_selection_summary(inputs)
+            except Exception:
+                _log("inputChanged notify failed")
+                _log(traceback.format_exc())
 
 
     class _CommandValidateInputsHandler(adsk.core.ValidateInputsEventHandler):
         """Require at least one selection before enabling OK."""
 
         def notify(self, args):
-            event_args = adsk.core.ValidateInputsEventArgs.cast(args)
-            inputs = _get_command_inputs_from_event(event_args)
-            selection_input = adsk.core.SelectionCommandInput.cast(
-                inputs.itemById(config.SELECTION_INPUT_ID) if inputs else None
-            )
-            normalized_count = 0
-            if selection_input:
-                normalized_count = len(
-                    export_service.collect_supported_entities_from_selections(selection_input)
+            try:
+                event_args = adsk.core.ValidateInputsEventArgs.cast(args)
+                inputs = _get_command_inputs_from_event(event_args)
+                selection_input = adsk.core.SelectionCommandInput.cast(
+                    inputs.itemById(config.SELECTION_INPUT_ID) if inputs else None
                 )
-            event_args.areInputsValid = normalized_count > 0
+                normalized_count = 0
+                if selection_input:
+                    normalized_count = len(
+                        export_service.collect_supported_entities_from_selections(selection_input)
+                    )
+                event_args.areInputsValid = normalized_count > 0
+            except Exception:
+                _log("validateInputs notify failed")
+                _log(traceback.format_exc())
+                event_args = adsk.core.ValidateInputsEventArgs.cast(args)
+                event_args.areInputsValid = False
 
 
     class _CommandExecuteHandler(adsk.core.CommandEventHandler):
@@ -381,10 +362,6 @@ if adsk is not None:
 else:
 
     class _CommandCreatedHandler:  # pragma: no cover - local editing fallback
-        pass
-
-
-    class _CommandActivateHandler:  # pragma: no cover - local editing fallback
         pass
 
 
